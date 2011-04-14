@@ -1,0 +1,811 @@
+\input texinfo
+@comment %**start of header
+@setfilename git-cheat-sheet.info
+@include version.texi
+@settitle A Git Cheat Sheat for CVS Users @value{VERSION}
+@syncodeindex pg cp
+@comment %**end of header
+@copying
+This is a short Cheat Sheet for Git (version @value{VERSION},
+@value{UPDATED}).
+
+Copyright @copyright{} 2011, Leo Butler.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with the Front-Cover Texts being ``A Git Cheat
+Sheet,'' and with the Back-Cover Texts as in (a) below. A copy of the
+license is included in the section entitled ``GNU Free Documentation
+License.''
+
+(a) The Back-Cover Text is: ``You have the freedom to
+copy and modify this manual.''
+@end quotation
+@end copying
+
+@titlepage
+@title A Git Cheat Sheet for CVS Users
+@subtitle version @value{VERSION}, @value{UPDATED}
+@author Leo T. Butler (@email{leo.butler@@member.ams.org})
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top, Overview, (dir), (dir)
+@top Git Cheat Sheet for CVS Users
+
+Based on Git, version @value{GITVERSION}.
+@end ifnottex
+
+@menu
+* Overview::                    
+* Git Commands::
+* Setting up a Git Repository::  
+* Committing Changes Locally::  
+* Committing Changes Remotely::  
+* Branches and Tags::
+* Logs::
+* Fixing Foul Ups::             
+* Front Ends to Git::           
+* References and External Resources::  
+* GNU Free Documentation License::  
+* Index::                       
+@end menu
+
+
+@node Overview, Git Commands, Top, Top
+@chapter Overview
+
+@pindex overview
+@cindex overview
+
+This manual is intended to be a quick tutorial and reference to setting
+up a Git repository and managing it. This is not a comprehensive guide,
+rather it aims to give you access to that 2% of Git that you will use
+98% of the time.
+
+@menu
+* Conventions::
+* How Git is like CVS::
+* How Git differs from CVS::
+@end menu
+
+@node Conventions, How Git is like CVS, Overview, Overview
+@section Conventions
+
+The name of the software is @quote{Git} while the command name is
+@command{git}. In general, we will quote @quote{proper nouns} thusly,
+while a @command{command} is quoted thus.
+
+A shell command, or sequence of the same, and its output are displayed
+thus:
+
+@shellcommandwithoutput
+cd /tmp                                      # <-- silent
+echo "An example of a command's output"      # <-- generates output
+@end example
+
+@shellcommandoutput
+==>
+   An example of a command's output
+@end example
+
+@node How Git is like CVS, How Git differs from CVS, Conventions, Overview
+@section How Git is like CVS
+
+Git, like CVS, is a source-control management software that works over
+networks.
+
+@node How Git differs from CVS,  , How Git is like CVS, Overview
+@section How Git differs from CVS
+
+Git differs from CVS in one important way: with CVS, there is a central
+repository of code (CVSROOT) and contributors @quote{check out} a copy
+of the repository, then @quote{check in} changes.
+
+With Git, every repository is created equal. Contributors do not
+@quote{check out} the source, they @quote{clone} a repository. Moreover,
+X can share his repository, or just parts of it, with Y and Z and they
+can do likewise, without any one of the 3 repositories being a copy of
+the other. Git will manage all of this. Git also allows X to
+@quote{commit} changes to his repository without needing propagate these
+changes to some central repository (there may not be one).
+
+
+@node Git Commands, Setting up a Git Repository, Overview, Top
+@chapter Git Commands
+
+@table @samp
+@item git-init
+ to create a new repository.
+   
+@item git-log
+ to see what happened.
+   
+@item git-checkout
+ and git-branch to create and switch branches.
+   
+@item git-add
+ to manage the index file.
+   
+@item git-diff
+ and git-status to see what you are in the middle of doing.
+   
+@item git-commit
+ to advance the current branch.
+   
+@item git-reset
+ and git-checkout (with pathname parameters) to undo changes.
+   
+@item git-merge
+ to merge between local branches.
+   
+@item git-rebase
+ to maintain topic branches.
+   
+@item git-tag
+ to mark known point.
+
+@item git-show-branch
+ to see where you are.
+   
+@item git-clone
+ from the upstream to prime your local repository.
+   
+@item git-pull
+ and git-fetch from "origin" to keep up-to-date with the upstream.
+   
+@item git-push
+ to shared repository, if you adopt CVS style shared repository workflow.
+   
+@item git-format-patch
+ to prepare e-mail submission, if you adopt Linux kernel-style public forum workflow.
+
+@end table
+
+
+@node Setting up a Git Repository, Committing Changes Locally, Git Commands, Top
+@chapter Setting up a Git Repository
+
+We can set up a Git repository in a number of ways.
+
+@menu
+* From Scratch::
+* From a Pre-existing Directory and Files::
+* From a Remote Repository::
+@end menu
+
+@node From Scratch, From a Pre-existing Directory and Files, Setting up a Git Repository, Setting up a Git Repository
+@section From Scratch
+
+We use the command @command{git init} to initialize an empty repository:
+
+@shellcommandwithoutput
+rm -fr /tmp/project; mkdir /tmp/project; cd /tmp/project
+git init
+@end example
+
+@shellcommandoutput
+==>
+   Initialized empty Git repository in /tmp/project/.git/
+@end example
+
+To see what Git has created
+
+@shellcommandwithoutput
+ls -al /tmp/project/
+@end example
+
+@shellcommandoutput
+==>
+   total 12
+   drwxr-xr-x  3 work work 4096 2011-04-13 16:32 .
+   drwxrwxrwt 15 root root 4096 2011-04-13 16:32 ..
+   drwxr-xr-x  7 work work 4096 2011-04-13 16:32 .git
+@end example
+
+We can add some files to our repository, and then commit these changes.
+
+@shellcommandwithoutput
+cd /tmp/project
+touch A B C                              # <-- we physically add the files
+git add .                                # <-- we tell Git to add all files in current directory
+git commit -m 'My first Git repo commit' # <-- commit changes
+@end example
+
+@shellcommandoutput
+==>
+   [master (root-commit) 9c69f7a] My first Git repo commit
+    0 files changed, 0 insertions(+), 0 deletions(-)
+    create mode 100644 A
+    create mode 100644 B
+    create mode 100644 C
+@end example
+
+
+@node From a Pre-existing Directory and Files, From a Remote Repository, From Scratch, Setting up a Git Repository
+@section From a Pre-existing Directory and Files
+
+First, let us create a project directory and add some files and a
+sub-directory:
+
+@shellcommand
+rm -fr /tmp/pre-existing; mkdir -p /tmp/pre-existing/src; cd /tmp/pre-existing
+touch a b c src/d
+@end example
+
+Now, we initialize the repository with @command{git init}, add the
+contents with @command{git add} and then commit the additions with
+@command{git commit}. This is similar to the previous example.
+
+@shellcommandwithoutput
+cd /tmp/pre-existing
+git init
+git add .
+git commit -m 'initial commit to Git'
+@end example
+
+@shellcommandoutput
+==>
+   Initialized empty Git repository in /tmp/pre-existing/.git/
+   [master (root-commit) 9a25610] initial commit to Git
+    0 files changed, 0 insertions(+), 0 deletions(-)
+    create mode 100644 a
+    create mode 100644 b
+    create mode 100644 c
+    create mode 100644 src/d
+@end example
+
+@shellcommandwithoutput
+cd /tmp/pre-existing
+git status
+@end example
+
+@shellcommandoutput
+==>
+   # On branch master
+   nothing to commit (working directory clean)
+@end example
+
+The command @command{git status} has told us that we are on the
+@quote{master} branch and the working directory is free of any changes.
+
+
+@node From a Remote Repository,  , From a Pre-existing Directory and Files, Setting up a Git Repository
+@section From a Remote Repository
+
+There is a local remote and remote remote. We will do each, but they in
+fact look essentially the same.
+
+@menu
+* A Local Remote Clone::
+* A Remote Remote Clone::
+@end menu
+
+@node A Local Remote Clone, A Remote Remote Clone, From a Remote Repository, From a Remote Repository
+@subsection A Local Remote Clone
+
+The repository created in the previous section is, in fact, remote. To
+create a @quote{clone} of it (check it out, in CVS terms), we do the following
+
+@shellcommandwithoutput
+rm -fr /tmp/clone
+git clone --local /tmp/pre-existing /tmp/clone
+@end example
+
+@shellcommandoutput
+==>
+   Initialized empty Git repository in /tmp/clone/.git/
+@end example
+
+Let us see what was created:
+
+@shellcommandwithoutput
+ls -al /tmp/clone
+@end example
+
+@shellcommandoutput
+==>
+   total 16
+   drwxr-xr-x  4 work work 4096 2011-04-13 16:32 .
+   drwxrwxrwt 15 root root 4096 2011-04-13 16:32 ..
+   -rw-r--r--  1 work work    0 2011-04-13 16:32 a
+   -rw-r--r--  1 work work    0 2011-04-13 16:32 b
+   -rw-r--r--  1 work work    0 2011-04-13 16:32 c
+   drwxr-xr-x  8 work work 4096 2011-04-13 16:32 .git
+   drwxr-xr-x  2 work work 4096 2011-04-13 16:32 src
+@end example
+
+@node A Remote Remote Clone,  , A Local Remote Clone, From a Remote Repository
+@subsection A Remote Remote Clone
+
+Suppose you want to clone my GitHub repository, Maxima-CAS. To do so
+
+@example
+git clone git://github.com/leo-butler/Maxima-CAS.git
+@end example
+
+By default, a directory Maxima-CAS will be created in the present
+working directory and the repository will be cloned into it.
+
+@node Committing Changes Locally, Committing Changes Remotely, Setting up a Git Repository, Top
+@chapter Committing Changes Locally
+
+@pindex
+@cindex
+
+Let's now make some changes to files in the repository /tmp/pre-existing:
+
+@shellcommandwithoutput
+cd /tmp/pre-existing
+echo 1 > a                # <-- edit file a
+echo 2 > b                # <-- edit file b
+git status
+@end example
+
+The command @command{git status} tells us the status of the repository:
+
+@shellcommandoutput
+==>
+   # On branch master
+   # Changed but not updated:
+   #   (use "git add <file>..." to update what will be committed)
+   #   (use "git checkout -- <file>..." to discard changes in working directory)
+   #
+   #	modified:   a
+   #	modified:   b
+   #
+   no changes added to commit (use "git add" and/or "git commit -a")
+@end example
+
+We can commit the changes with @command{git commit}, as the output suggests:
+
+@shellcommandwithoutput
+cd /tmp/pre-existing
+git commit -a -m 'A commit in the master'
+@end example
+
+@shellcommandoutput
+==>
+   [master b21fa72] A commit in the master
+    2 files changed, 2 insertions(+), 0 deletions(-)
+@end example
+
+@node Committing Changes Remotely, Branches and Tags, Committing Changes Locally, Top
+@chapter Committing Changes Remotely
+
+@pindex
+@cindex
+
+We'll make some changes to /tmp/clone, then try to update the repository
+/tmp/pre-existing from our clone. There are a couple @quote{gotchas}, so
+we'll walk through a right and a wrong way to do this.
+
+@menu
+* The Right Way::
+* A Wrong Way::
+* Recovering from the Wrong Way::
+@end menu
+
+@node The Right Way, A Wrong Way, Committing Changes Remotely, Committing Changes Remotely
+@section The Right Way
+
+Let's now make some changes to files in the cloned repository
+/tmp/clone, and commit those changes. We will do this work on a branch
+we create in the clone.
+
+@shellcommandwithoutput
+cd /tmp/clone
+git pull                     # <-- update 
+git checkout -b working-copy # <-- create a new working branch, and change to it
+echo 2 > b                   # <-- edit file b
+echo 3 > c                   # <-- edit file c
+git commit -a -m 'A commit in the clone'
+@end example
+
+The command @command{git pull} pulls in the changes from the master, and
+tells us what it did. With our clone up-to-date, we @command{git
+checkout} a branch called @quote{working-copy} (the @code{-b} flag tells
+Git to create and check out). We do some editing and then commit the changes.
+
+@shellcommandoutput
+==>
+   From /tmp/pre-existing
+      9a25610..b21fa72  master     -> origin/master
+   Updating 9a25610..b21fa72
+   Fast-forward
+    a |    1 +
+    b |    1 +
+    2 files changed, 2 insertions(+), 0 deletions(-)
+   Switched to a new branch 'working-copy'
+   [working-copy a120345] A commit in the clone
+    1 files changed, 1 insertions(+), 0 deletions(-)
+@end example
+
+Success! Git tells us that in the /tmp/pre-existing repository, we have
+created a new branch @quote{working-copy} from our current branch (=
+@quote{HEAD}).
+
+If we are skeptical, we can check with the command @command{git branch}:
+
+@shellcommandwithoutput
+cd /tmp/clone
+git branch
+@end example
+
+@shellcommandoutput
+==>
+     master
+   * working-copy
+@end example
+
+Git indicates the checked-out branch by the @quote{*}.
+
+If we have write permissions on /tmp/pre-existing, then we can use the
+command @command{git push} to push our changes back to that repository.
+
+@shellcommandwithoutput
+cd /tmp/clone
+git push origin HEAD      # <-- push the current branch (@quote{HEAD}) onto the @quote{origin}-al
+@end example
+
+@shellcommandoutput
+==>
+   To /tmp/pre-existing
+    * [new branch]      HEAD -> working-copy
+@end example
+
+Git reports that HEAD was successfully pushed to create a new branch
+named @quote{working-copy}.
+
+@node A Wrong Way, Recovering from the Wrong Way, The Right Way, Committing Changes Remotely
+@section A Wrong Way
+
+The command @command{git pull} pulls in the changes from the master, as
+previously. With our clone up-to-date, we do some editing and then
+commit the changes.
+
+@shellcommandwithoutput
+cd /tmp/clone
+git checkout master                    # <-- make sure we are on master branch
+git pull                               # <-- update clone from pre-existing
+echo 2 >> a                            # <-- edit
+git commit -a -m 'Added a 2 to a'      # <-- commit
+@end example
+
+@shellcommandoutput
+==>
+   Switched to branch 'master'
+   Already up-to-date.
+   [master b260b3c] Added a 2 to a
+    1 files changed, 1 insertions(+), 0 deletions(-)
+@end example
+
+Let's see if we can update the @quote{origin/master}. We use the command
+@command{git push}:
+
+@shellcommandwithoutput
+cd /tmp/clone
+git push                               # <-- update pre-existing from clone
+@end example
+
+We did not need to use the full incantation @code{git push origin HEAD}
+because the master branch existed in the /tmp/pre-exisiting repository
+when we cloned from it. Anyhow, the output looks @b{BAD}:
+
+@shellcommandoutput
+==>
+   remote: error: refusing to update checked out branch: refs/heads/master        
+   remote: error: By default, updating the current branch in a non-bare repository        
+   remote: error: is denied, because it will make the index and work tree inconsistent        
+   remote: error: with what you pushed, and will require 'git reset --hard' to match        
+   remote: error: the work tree to HEAD.        
+   remote: error:         
+   remote: error: You can set 'receive.denyCurrentBranch' configuration variable to        
+   remote: error: 'ignore' or 'warn' in the remote repository to allow pushing into        
+   remote: error: its current branch; however, this is not recommended unless you        
+   remote: error: arranged to update its work tree to match what you pushed in some        
+   remote: error: other way.        
+   remote: error:         
+   remote: error: To squelch this message and still keep the default behaviour, set        
+   remote: error: 'receive.denyCurrentBranch' configuration variable to 'refuse'.        
+   To /tmp/pre-existing
+    ! [remote rejected] master -> master (branch is currently checked out)
+   error: failed to push some refs to '/tmp/pre-existing'
+@end example
+
+
+@node Recovering from the Wrong Way,  , A Wrong Way, Committing Changes Remotely
+@section Recovering from the Wrong Way
+
+How to fix this situation, now we are in it? We create a temporary
+branch and push it to @quote{origin}.
+
+@shellcommandwithoutput
+cd /tmp/clone
+git checkout -b merge-me-with-master      # <-- a temporary branch
+git push origin HEAD                      # <-- push the temporary branch
+git checkout master                       # <-- checkout master, in preparation for...
+git branch -d merge-me-with-master        # <-- delete the temporary branch
+@end example
+
+@shellcommandoutput
+==>
+   Switched to a new branch 'merge-me-with-master'
+   To /tmp/pre-existing
+    * [new branch]      HEAD -> merge-me-with-master
+   Switched to branch 'master'
+   Your branch is ahead of 'origin/master' by 1 commit.
+   Deleted branch merge-me-with-master (was b260b3c).
+@end example
+
+Note that in recovering from the wrong way, we effectively backtracked
+from our false-start and took the right way on the second try. Git is
+sufficiently flexible that we can do this without penalty.
+
+If we are skeptical, we can check with the command @command{git branch}:
+
+@shellcommandwithoutput
+cd /tmp/pre-existing
+git branch
+@end example
+
+@shellcommandoutput
+==>
+   * master
+     merge-me-with-master
+     working-copy
+@end example
+
+@menu
+* On the other end::
+@end menu
+
+
+@node On the other end,  , Recovering from the Wrong Way, Recovering from the Wrong Way
+@subsection On the other end
+
+In the /tmp/pre-existing repository, its owner must now decide to merge
+the branch @quote{merge-me-with-master} onto @quote{master}. To do this
+we use the command @command{git merge}:
+
+@shellcommandwithoutput
+cd /tmp/pre-existing
+git checkout master                     # <-- ensure we are on the right branch
+git merge merge-me-with-master          # <-- merge
+git branch -d merge-me-with-master      # <-- delete
+@end example
+
+@shellcommandoutput
+==>
+   Already on 'master'
+   Updating b21fa72..b260b3c
+   Fast-forward
+    a |    1 +
+    1 files changed, 1 insertions(+), 0 deletions(-)
+   Deleted branch merge-me-with-master (was b260b3c).
+@end example
+
+Note that the owner of this repository would need to do the same thing
+with @quote{working-copy}, or possibly he could leave his master
+unmerged.
+
+@node Branches and Tags, Logs, Committing Changes Remotely, Top
+@chapter Branches and Tags
+
+@pindex
+@cindex
+
+We have already met branches: these are meant to be cheap and
+disposable. To create a branch without checking it out, use @command{git
+branch <name>}. To list your repository's branches use @command{git
+branch}. As we have seen @command{git branch -d <name>} deletes the
+branch <name>.
+
+Let us see how to tag and list tags:
+
+@shellcommandwithoutput
+cd /tmp/pre-existing
+git tag release_candidate_1      # <-- introduce a tag
+git tag -l                       # <-- list all tags
+@end example
+
+@shellcommandoutput
+==>
+   release_candidate_1
+@end example
+
+And, we can even checkout the tag:
+
+@shellcommandwithoutput
+cd /tmp/pre-existing
+git checkout release_candidate_1
+@end example
+
+
+@shellcommandoutput
+==>
+   Note: checking out 'release_candidate_1'.
+
+   You are in 'detached HEAD' state. You can look around, make experimental
+   changes and commit them, and you can discard any commits you make in this
+   state without impacting any branches by performing another checkout.
+
+   If you want to create a new branch to retain commits you create, you may
+   do so (now or later) by using -b with the checkout command again. Example:
+
+     git checkout -b new_branch_name
+
+   HEAD is now at b260b3c... Added a 2 to a
+@end example 
+
+@node Logs, Fixing Foul Ups, Branches and Tags, Top
+@chapter Logs
+
+@pindex
+@cindex
+
+The basic command to display a log of commit messages is @command{git
+log}. Here we display the log of /tmp/clone:
+
+@shellcommandwithoutput
+cd /tmp/pre-existing
+git checkout working-copy
+git log --graph
+@end example
+
+The @option{--graph} option displays the commit log as a graph:
+
+@shellcommandoutput
+==>
+   Previous HEAD position was b260b3c... Added a 2 to a
+   Switched to branch 'working-copy'
+   * commit a12034576ffc4eb9aa109c75c0ba81fec0510410
+   | Author: Leo Butler <nb0yjxtr+github@@sdf.lonestar.org>
+   | Date:   Wed Apr 13 16:32:29 2011 +0100
+   | 
+   |     A commit in the clone
+   |  
+   * commit b21fa724d2dc632e01545c9e9d3816c1f0ed8566
+   | Author: Leo Butler <nb0yjxtr+github@@sdf.lonestar.org>
+   | Date:   Wed Apr 13 16:32:29 2011 +0100
+   | 
+   |     A commit in the master
+   |  
+   * commit 9a25610294c8572a50efe1d261a2ca350dbc646c
+     Author: Leo Butler <nb0yjxtr+github@@sdf.lonestar.org>
+     Date:   Wed Apr 13 16:32:29 2011 +0100
+     
+         initial commit to Git
+@end example
+
+
+@node Fixing Foul Ups, Front Ends to Git, Logs, Top
+@chapter Fixing Foul Ups
+
+@pindex
+@cindex
+
+This is a potentially huge section. I will only cover a few topics.
+
+
+@menu
+* Botched Pushes::
+* Botched Pulls::
+* Undoing a Commit::
+@end menu
+
+@node Botched Pushes, Botched Pulls, Fixing Foul Ups, Fixing Foul Ups
+@section Botched Pushes
+
+This is covered in @xref{Recovering from the Wrong Way}.
+
+@node Botched Pulls, Undoing a Commit, Botched Pushes, Fixing Foul Ups
+@section Botched Pulls
+
+The command @command{git pull} is a composite of @command{git fetch} and
+@command{git merge}: @command{git fetch} brings in the updates from a
+remote repository, but it does not merge the changes; that is the job of
+@command{git merge}. So, when a pull fails, fetch and then merge. Merges
+will need to be done manually in most cases, as in CVS.
+
+@node Undoing a Commit,  , Botched Pulls, Fixing Foul Ups
+@section Undoing a Commit
+
+The easist commit to undo is the most recent one and we use @command{git
+revert} to do this:
+
+@shellcommandwithoutput
+cd /tmp/pre-existing
+git checkout master
+git revert HEAD               # <-- revert or undo last commit on HEAD
+git log --oneline
+@end example
+
+@shellcommandoutput
+==>
+   Switched to branch 'master'
+   Finished one revert.
+   [master 7dab077] Revert "Added a 2 to a"
+    1 files changed, 0 insertions(+), 1 deletions(-)
+   7dab077 Revert "Added a 2 to a"
+   b260b3c Added a 2 to a
+   b21fa72 A commit in the master
+   9a25610 initial commit to Git
+@end example
+
+For more complicated reversions, see the documentation for @command{git
+checkout}.
+
+@node Front Ends to Git, References and External Resources, Fixing Foul Ups, Top
+@chapter Front Ends to Git
+
+@pindex
+@cindex
+
+Here is a short list of front-ends that I know:
+
+@table @samp
+@item Emacs
+There is limited-support for git in @code{vc-mode}, and a more
+comprehensive support in @code{magit-mode}.
+
+@item git-gui
+This is distributed with Git.
+
+@item gitk
+Also distributed with Git.
+
+@item others
+See the @uref{https://git.wiki.kernel.org/index.php/Interfaces@,_frontends@,_and_tools,kernel.org wiki}.
+@end table
+
+
+@node References and External Resources, GNU Free Documentation License, Front Ends to Git, Top
+@chapter References and External Resources
+
+@pindex
+@cindex
+
+@table @samp
+@item man
+On *nix systems, @code{man git} provides a list of all high-level
+commands like @command{git checkout} that have their own manpage. While
+some manpages can be cryptic, these are high-quality with good examples
+and pointers about typical usage.
+
+@item Git homepage
+The @uref{http://git-scm.com/,Git homepage} has a very good
+documentation section. There is a link in the documentation section to a
+youtube video by Linus Torvalds on his creation.
+
+@item Git in 20 commands
+@uref{http://www.kernel.org/pub/software/scm/git/docs/everyday.html,Git
+in 20 commands} has a quick, but pretty rich, trip through Git-land. The
+list of commands is cribbed from there. @xref{Git Commands}.
+@end table
+
+
+@node GNU Free Documentation License, Index, References and External Resources, Top
+@appendix GNU Free Documentation License
+
+@include fdl.texi
+
+
+@node Index,  , GNU Free Documentation License, Top
+@unnumbered Index
+
+@printindex cp
+
+@bye
+
+@c Local Variables: 
+@c mode: texinfo
+@c TeX-master: t
+@c End: 

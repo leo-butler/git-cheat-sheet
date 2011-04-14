@@ -1,0 +1,29 @@
+@set GITVERSION 1.7.0.4
+@set UPDATED 11-04-2011
+@set VERSION 0.1
+
+@macro quote{text}
+"\text\"
+@end macro
+
+@c @macro shellcommand{text}
+@c @example
+@c \text\
+@c @end example
+@c @end macro
+
+@c @macro shelloutput{text}
+@c @example
+@c \text\
+@c @end example
+@c @end macro
+
+
+@alias shellcommand=example
+@alias shellcommandwithoutput=example
+@alias shellcommandoutput=example
+
+@c Local Variables: 
+@c mode: texinfo
+@c TeX-master: "git-cheat-sheet"
+@c End: 
